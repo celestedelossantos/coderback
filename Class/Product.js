@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs'
 
 export class Product {
     constructor(title, description, price, thumbnail, code, stock){
@@ -18,7 +18,7 @@ export class ProductManager {
         this.path = path
     }
 
-    addProduct(product){
+    async addProduct(product){
         const isCodeDuplicate = this.getProducts.some(prod => prod.code === product.code)
         const hasInvalidateProperty = Object.values(product).some(property => !property)
 
@@ -27,6 +27,7 @@ export class ProductManager {
 
         this.products.push({ ...product, id: this.id })
         this.id++;
+        await fs.promises.writeFile(this.path, JSON.stringify({ data: this.products }))
     }
 
     async getProducts(){
