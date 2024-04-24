@@ -1,4 +1,6 @@
-class Product {
+const fs = require('fs')
+
+export class Product {
     constructor(title, description, price, thumbnail, code, stock){
         this.title = title;
         this.description = description;
@@ -9,10 +11,11 @@ class Product {
     }
 }
 
-class ProductManager {
-    constructor(){
+export class ProductManager {
+    constructor(path){
         this.id = 1;
-        this.products = []
+        this.products = [];
+        this.path = path
     }
 
     addProduct(product){
@@ -26,12 +29,35 @@ class ProductManager {
         this.id++;
     }
 
-    getProducts(){
+    async getProducts(){
+        const response = await fs.promises.readFile(this.path, 'utf-8')
+        this.products = [...JSON.parse(response).data]
         return [...this.products]
     }
 
     getProductById(id){
         const productFinded = this.products.find(prod => prod.id === id)
         return productFinded || console.log('Not found')         
+    }
+
+    async updateProduct(id, payload){
+        const productsUpdated = this.products.map(prod => {
+            if(prod.id === id){
+                return {
+                    ...prod,
+                    ...payload,
+                    id
+                }
+            }
+            return prod
+        });
+
+        this.products = [...productsUpdated]
+        await fs.promises.writeFile(JSON.stringify({ data: this.products }))
+    }
+
+    async deleteProduct(id){
+        this.products = this.products.filter(prod => prod.id !== id)
+        await fs.promises.writeFile(JSON.stringify({ data: this.products }))
     }
 }
