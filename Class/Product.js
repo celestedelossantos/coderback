@@ -19,7 +19,7 @@ export class ProductManager {
     }
 
     async addProduct(product){
-        const isCodeDuplicate = this.getProducts.some(prod => prod.code === product.code)
+        const isCodeDuplicate = this.products.some(prod => prod.code === product.code)
         const hasInvalidateProperty = Object.values(product).some(property => !property)
 
         if(isCodeDuplicate) return console.log("Code Duplicate")
@@ -54,11 +54,11 @@ export class ProductManager {
         });
 
         this.products = [...productsUpdated]
-        await fs.promises.writeFile(JSON.stringify({ data: this.products }))
+        await fs.promises.writeFile(this.path,JSON.stringify({ data: this.products }))
     }
 
     async deleteProduct(id){
         this.products = this.products.filter(prod => prod.id !== id)
-        await fs.promises.writeFile(JSON.stringify({ data: this.products }))
+        await fs.promises.writeFile(this.path, JSON.stringify({ data: this.products }))
     }
 }
