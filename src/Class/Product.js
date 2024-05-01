@@ -25,7 +25,7 @@ export class ProductManager {
         if(isCodeDuplicate) return console.log("Code Duplicate")
         if(hasInvalidateProperty) return console.log("Invalid or incomplete information")
 
-        this.products.push({ ...product, id: this.id })
+        this.products.push({ ...product, id: `${this.id}` })
         this.id++;
         await fs.promises.writeFile(this.path, JSON.stringify({ data: this.products }))
     }
@@ -36,8 +36,10 @@ export class ProductManager {
         return [...this.products]
     }
 
-    getProductById(id){
-        const productFinded = this.products.find(prod => prod.id === id)
+    async getProductById(id){
+        const products = await this.getProducts();
+        const productFinded = products.find(prod => prod.id === id);
+
         return productFinded || console.log('Not found')         
     }
 

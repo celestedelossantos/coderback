@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/app.js",
   "scripts": {
-    "dev": "node index.js",
+    "dev": "node ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/celestedelossantos/coderback/issues"
   },
-  "homepage": "https://github.com/celestedelossantos/coderback#readme"
+  "homepage": "https://github.com/celestedelossantos/coderback#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }
