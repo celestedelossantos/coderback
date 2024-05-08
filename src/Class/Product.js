@@ -1,4 +1,5 @@
 import fs from 'fs'
+import { v4 as uuidv4 } from 'uuid';
 
 export class Product {
     constructor(title, description, price, thumbnail, code, stock){
@@ -8,6 +9,7 @@ export class Product {
         this.thumbnail = thumbnail;
         this.code = code;
         this.stock = stock;
+        this.status = true;
     }
 }
 
@@ -25,8 +27,8 @@ export class ProductManager {
         if(isCodeDuplicate) return console.log("Code Duplicate")
         if(hasInvalidateProperty) return console.log("Invalid or incomplete information")
 
-        this.products.push({ ...product, id: `${this.id}` })
-        this.id++;
+        this.products.push({ ...product, id: uuidv4() })
+       
         await fs.promises.writeFile(this.path, JSON.stringify({ data: this.products }))
     }
 
@@ -49,7 +51,7 @@ export class ProductManager {
                 return {
                     ...prod,
                     ...payload,
-                    id
+                    id: prod.id
                 }
             }
             return prod
