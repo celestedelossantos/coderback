@@ -21,6 +21,7 @@ export class ProductManager {
     }
 
     async addProduct(product){
+        await this.getProducts()
         const isCodeDuplicate = this.products.some(prod => prod.code === product.code)
         const hasInvalidateProperty = Object.values(product).some(property => !property)
 
