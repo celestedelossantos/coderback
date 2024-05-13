@@ -47,15 +47,15 @@ export class ProductManager {
     }
 
     async updateProduct(id, payload){
+        this.products = await this.getProducts()
         const productsUpdated = this.products.map(prod => {
-            if(prod.id === id){
-                return {
-                    ...prod,
-                    ...payload,
-                    id: prod.id
-                }
+            if(prod.id !== id) return prod
+            
+            return {
+                ...prod,
+                ...payload,
+                id: prod.id
             }
-            return prod
         });
 
         this.products = [...productsUpdated]
