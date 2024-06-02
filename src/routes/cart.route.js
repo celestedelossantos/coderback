@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CartManager } from '../Class/Cart.js';
+import { CartManager } from '../Dao/Cart.js';
 
 const router = Router();
 const cartsManager = new CartManager('./src/data/databasecarts.json');

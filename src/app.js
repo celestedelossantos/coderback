@@ -5,10 +5,14 @@ import CartRouter from './routes/cart.route.js';
 import ViewsRouter from './routes/views.route.js'
 import { __dirname } from './utils.js';
 import { Server } from 'socket.io'
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 const app = express();
 const hbs = create({});
+
 const httpServer = app.listen(port, () => {
     console.log(`Connect server to port ${port}`)
 })
@@ -25,11 +29,13 @@ app.use('/api/product/', ProductRouter);
 app.use('/api/cart/', CartRouter);
 
 
-export const socketServer = new Server(httpServer)
+export const socketServer = new Server(httpServer);
 
 socketServer.on('connection', socket => {
-    console.log('New client connected')
-    socket.on('message', data => {
-        console.log(data)
-    })
+    console.log('New client connected');
+});
+
+
+mongoose.connect(process.env.DATABASE).then(()=>{
+    console.log('connect to database')
 })

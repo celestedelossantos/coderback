@@ -1,18 +1,20 @@
 import { Router } from 'express';
-import { __dirname } from '../utils.js';
-import { ProductManager } from "../Class/Product.js";
+import { __dirname, uploader } from '../utils.js';
+import { ProductManager } from "../Dao/Product.js";
 import { socketServer } from '../app.js';
 
 const router = Router();
 const productList = new ProductManager(__dirname + '/data/databaseproducts.json');
 
-router.post('/', async (req, res) => {
-    const prod = req.body
+router.post('/', uploader.single('file') ,async (req, res) => {
+    console.log(req.file)
 
-    await productList.addProduct(prod)
+    // const prod = req.body
 
-    socketServer.sockets.emit("onchangeProduct", await productList.getProducts())
-    res.status(201).json({ message: 'Add successfully' })
+    // await productList.addProduct(prod)
+
+    // socketServer.sockets.emit("onchangeProduct", await productList.getProducts())
+    // res.status(201).json({ message: 'Add successfully' })
 });
 
 router.get('/', async (req, res) => {
