@@ -35,7 +35,6 @@ socketServer.on('connection', socket => {
     console.log('New client connected');
 });
 
-
-mongoose.connect(process.env.DATABASE).then(()=>{
+mongoose.connect(process.env.DATABASE, { dbName: 'ecommerce' }).then(()=>{
     console.log('connect to database')
 })

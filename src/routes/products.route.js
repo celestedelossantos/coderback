@@ -1,57 +1,61 @@
-import { Router } from 'express';
-import { __dirname, uploader } from '../utils.js';
-import { ProductManager } from "../Dao/Product.js";
-import { socketServer } from '../app.js';
+import { Router } from "express";
+import { __dirname, uploader } from "../utils.js";
+import { socketServer } from "../app.js";
+import { productModel } from "../Dao/models/Product.model.js";
 
 const router = Router();
-const productList = new ProductManager(__dirname + '/data/databaseproducts.json');
 
-router.post('/', uploader.single('file') ,async (req, res) => {
-    console.log(req.file)
+router.post("/", uploader.single("file"), async (req, res) => {
+  if (!req.file) res.status(402).json({ message: "Error en algun campo" });
 
-    // const prod = req.body
+  const prod = req.body;
 
-    // await productList.addProduct(prod)
+  const result = await productModel.create({
+    ...prod,
+    thumbnail: req.file.path,
+  });
 
-    // socketServer.sockets.emit("onchangeProduct", await productList.getProducts())
-    // res.status(201).json({ message: 'Add successfully' })
+  res.status(201).json({ payload: result });
 });
 
-router.get('/', async (req, res) => {
-    const { limit } = req.query
+router.get("/", async (req, res) => {
+  const { limit } = req.query;
+  const products = await productModel.find().limit(limit);
 
-    const products = await productList.getProducts()
-    const productByLimit = limit ? products.slice(0,limit) : products
-
-    res.json(productByLimit)
+  res.json(products);
 });
 
-router.get('/:id', async (req, res) => {
-    const { id } = req.params
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
 
-    const productById = await productList.getProductById(id);
-    
-    if(!productById) res.status(404).json({ message: 'Product not found'})
+  const productFinded = await productModel.findById(id);
 
-    res.json(productById)
+  const status = productFinded ? 200 : 404;
+
+  res.status(status).json({ payload: productFinded });
 });
 
-router.put('/:id', async (req, res) => {
-    const { body, params } = req
-    const { id } = params;
-    const product = body;
+router.put("/:id", uploader.single("file"), async (req, res) => {
+  if (!req.file) res.status(400).json({ message: "Error en algun campo" });
 
-    await productList.updateProduct(id, product);
-    socketServer.sockets.emit("onchangeProduct", await productList.getProducts())
-    res.status(201).json({ message: 'Updated successfully' })
+  const { body, params } = req;
+  const { id } = params;
+  const product = body;
+  const productUpdated = await productModel.findByIdAndUpdate(id, {
+    ...product,
+    thumbnail: req.file.path,
+  }, { new: true });
+  // socketServer.sockets.emit("onchangeProduct", await productList.getProducts());
+  res
+    .status(201)
+    .json({ message: "Updated successfully", payload: productUpdated });
 });
 
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params;
-
-    await productList.deleteProduct(id);
-    socketServer.sockets.emit("onchangeProduct", await productList.getProducts())
-    res.status(200).json({ message: 'Deleted successfully' })
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+   const isDelete = await productModel.findByIdAndDelete(id);
+  //   socketServer.sockets.emit("onchangeProduct", await productList.getProducts());
+  res.status(isDelete ? 200 : 400).json({ payload: isDelete});
 });
 
-export default router
+export default router;

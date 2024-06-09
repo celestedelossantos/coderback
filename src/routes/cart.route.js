@@ -1,31 +1,45 @@
 import { Router } from 'express';
 import { CartManager } from '../Dao/Cart.js';
+import { cartModel } from '../Dao/models/Cart.model.js';
 
 const router = Router();
 const cartsManager = new CartManager('./src/data/databasecarts.json');
 
 router.post('/', async (req, res) => {
-    const newCart = await cartsManager.newCart()
+    const newCart = await cartModel.create({
+        products: []
+    })
 
-    res.status(201).json({ message: 'Save is successfully', cartId: newCart.id })
+    res.status(201).json({ message: 'Save is successfully', cart: newCart })
 });
 
 router.get('/:cid', async (req, res) => {
     const { cid } = req.params
 
-    const cartFinded = await cartsManager.getCartById(cid);
+    const cartFinded = await cartModel.findById(cid);
 
-    if(!cartFinded) res.status(404).json({ message: 'Not Found' })
+    const status = cartFinded ? 200 : 404;
 
-    res.json({ productList: cartFinded.products })
+    res.status(status).json({ productList: cartFinded?.products });
 });
 
 router.post('/:cid/product/:pid', async (req, res) => {
-    const { cid, pid } = req.params
-    
-    await cartsManager.addProductToCard(cid, pid);
+    const { cid, pid } = req.params;
 
-    res.json({message: 'Product Added'})
+    const cartFinded = await cartModel.findById(cid);
+    if(!cartFinded) res.status(404).json({ message: 'error' });
+
+    const indexProd = cartFinded.products.findIndex(prod => prod.id === pid);
+    if(indexProd === -1){
+        cartFinded.products.push({ id: pid, quantity: 1 })
+    } else {
+        cartFinded.products[indexProd] = { ...cart.products[indexProd], quantity: cartFinded.products[indexProd].quantity + 1 }
+    }
+    const cartUpdated = await cartModel.findByIdAndUpdate(cid,cartFinded, {
+        new: true,
+    })
+
+    res.status().json({ message: 'Product Added', cart: cartUpdated})
 
 });
 
