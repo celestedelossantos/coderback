@@ -7,6 +7,7 @@ import { __dirname } from './utils.js';
 import { Server } from 'socket.io'
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { chatModel } from './Dao/models/Chat.model.js';
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -32,7 +33,13 @@ app.use('/api/cart/', CartRouter);
 export const socketServer = new Server(httpServer);
 
 socketServer.on('connection', socket => {
-    console.log('New client connected');
+    socket.on('message',async (data) =>{
+        await chatModel.create({
+            user: data.user,
+            message: data.message
+        })
+        socketServer.emit('logs', await chatModel.find().lean())
+    })
 });
 
 mongoose.connect(process.env.DATABASE, { dbName: 'ecommerce' }).then(()=>{

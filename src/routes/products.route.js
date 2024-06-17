@@ -9,20 +9,33 @@ router.post("/", uploader.single("file"), async (req, res) => {
   if (!req.file) res.status(402).json({ message: "Error en algun campo" });
 
   const prod = req.body;
-
   const result = await productModel.create({
     ...prod,
-    thumbnail: req.file.path,
+    thumbnail: req.file.path.split('public')[1],
   });
 
   res.status(201).json({ payload: result });
 });
 
 router.get("/", async (req, res) => {
-  const { limit } = req.query;
-  const products = await productModel.find().limit(limit);
+  const { limit = 10, page = 1, sort = '', ...query } = req.query;
+  const sortManager = {
+    'asc': 1,
+    'desc': -1
+  }
+  const products = await productModel.paginate(
+    { ...query },
+    { 
+      limit,
+      page,
+      ...(sort && { sort: { price: sortManager[sort]} }),
+      customLabels: { docs: 'payload' }
+    })
 
-  res.json(products);
+  res.json({
+    ...products,
+    status: 'success'
+  });
 });
 
 router.get("/:id", async (req, res) => {
